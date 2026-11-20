@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Weather add-on for WebCTRL.
+
+  metadata-complete="true" is required: Tomcat scans @WebServlet / @WebListener
+  annotations regardless of the descriptor version, and the same URL patterns
+  would then be declared twice (web.xml + annotation). Tomcat refuses to start
+  the context with:
+      IllegalArgumentException: The servlets named [X] and [Y] are both mapped
+      to the url-pattern [/z] which is not permitted
+
+  With metadata-complete="true" annotations are ignored, so EVERY servlet and
+  listener must be declared here explicitly.
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5"
+         metadata-complete="true">
+
+    <display-name>Weather Add-on for WebCTRL</display-name>
+
+    <!-- ========== LISTENERS ========== -->
+    <listener>
+        <listener-class>com.controlj.addon.weather.scheduler.WeatherScheduler</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.controlj.addon.weather.util.WeatherLicenseInspector</listener-class>
+    </listener>
+
+    <!-- ========== SECURITY CONSTRAINTS ========== -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Weather Add-on</web-resource-name>
+            <url-pattern>/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>login</role-name>
+            <role-name>func_engineer_system</role-name>
+            <role-name>func_view</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <form-login-config>
+            <form-login-page>/loginout/login.jsp</form-login-page>
+            <form-error-page>/loginout/fail_login.jsp</form-error-page>
+        </form-login-config>
+    </login-config>
+
+    <!-- ========== SERVLETS ========== -->
+
+    <!-- Main servlet for weather display -->
+    <servlet>
+        <servlet-name>WeatherServlet</servlet-name>
+        <servlet-class>com.controlj.addon.weather.servlet.WeatherServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WeatherServlet</servlet-name>
+        <url-pattern>/weather</url-pattern>
+    </servlet-mapping>
+
+    <!-- Simple weather view for embedding -->
+    <servlet>
+        <servlet-name>SimpleWeatherView</servlet-name>
+        <servlet-class>com.controlj.addon.weather.servlet.SimpleWeatherView</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SimpleWeatherView</servlet-name>
+        <url-pattern>/view</url-pattern>
+    </servlet-mapping>
+
+    <!-- Configuration servlet -->
+    <servlet>
+        <servlet-name>ConfigServlet</servlet-name>
+        <servlet-class>com.controlj.addon.weather.servlet.ConfigServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ConfigServlet</servlet-name>
+        <url-pattern>/config</url-pattern>
+    </servlet-mapping>
+
+    <!-- Weather writer servlet -->
+    <servlet>
+        <servlet-name>WeatherWriterServlet</servlet-name>
+        <servlet-class>com.controlj.addon.weather.servlet.WeatherWriterServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WeatherWriterServlet</servlet-name>
+        <url-pattern>/writeweather</url-pattern>
+    </servlet-mapping>
+
+    <!-- Force update servlet -->
+    <servlet>
+        <servlet-name>ForceUpdateServlet</servlet-name>
+        <servlet-class>com.controlj.addon.weather.servlet.ForceUpdateServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ForceUpdateServlet</servlet-name>
+        <url-pattern>/forceupdate</url-pattern>
+    </servlet-mapping>
+
+    <!-- AJAX / JSON endpoints -->
+    <servlet>
+        <servlet-name>AjaxWeatherServlet</servlet-name>
+        <servlet-class>com.controlj.addon.weather.servlet.AjaxWeatherServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AjaxWeatherServlet</servlet-name>
+        <url-pattern>/ajax/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Primitive declaration / update -->
+    <servlet>
+        <servlet-name>PrimitiveDeclarationServlet</servlet-name>
+        <servlet-class>com.controlj.addon.weather.servlet.PrimitiveDeclarationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PrimitiveDeclarationServlet</servlet-name>
+        <url-pattern>/declaredata</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PrimitiveDeclarationServlet</servlet-name>
+        <url-pattern>/data/primitive/declaration</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>PrimitiveUpdateServlet</servlet-name>
+        <servlet-class>com.controlj.addon.weather.servlet.PrimitiveUpdateServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PrimitiveUpdateServlet</servlet-name>
+        <url-pattern>/updatedata</url-pattern>
+    </servlet-mapping>
+
+    <!-- Welcome page -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>

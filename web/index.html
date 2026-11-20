@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Add-on</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: #f0f0f0;
+            margin: 40px;
+            text-align: center;
+        }
+        h1 { color: #ffd700; margin-bottom: 4px; }
+        a { color: #ffd700; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .version { color: #aaa; font-size: 13px; margin-top: 0; }
+        .note {
+            max-width: 640px;
+            margin: 24px auto;
+            padding: 16px 20px;
+            background: #0d0d0d;
+            border-left: 3px solid #ffd700;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .note b { color: #ffd700; }
+        .note p { margin: 6px 0; color: #ddd; }
+        .hint { color: #999; font-size: 12px; }
+        .links { margin-top: 24px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>🌤️ Weather Add-on</h1>
+    <p class="version">version 1.1.6</p>
+
+    <div class="note">
+        <p><b>Источник данных:</b> аддон работает через погодной сервис
+           <a href="https://www.weatherapi.com/" target="_blank" rel="noopener">WeatherAPI.com</a>
+           (по умолчанию; в коде предусмотрен также Visual Crossing).</p>
+        <p><b>Нужен API-ключ.</b> Зарегистрируйтесь на сайте сервиса, скопируйте ключ
+           в личном кабинете (Account → API Keys) и вставьте его в
+           <a href="config">Настройках</a> аддона.</p>
+        <p class="hint">Ключ хранится в конфигурации на сервере WebCTRL и не входит в состав аддона.
+           На бесплатном тарифе WeatherAPI доступен прогноз на 3 дня — аддон запрашивает именно столько.</p>
+    </div>
+
+    <p class="links">
+        <a href="weather">Weather</a> &middot;
+        <a href="view">Compact view</a> &middot;
+        <a href="config">Settings</a> &middot;
+        <a href="writeweather">Write to WebCTRL</a>
+    </p>
+</body>
+</html>

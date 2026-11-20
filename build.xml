@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="weather_1.1.6" default="default" basedir=".">
+    <description>Builds, tests, and runs the project weather_1.1.6.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <!--
+      NetBeans puts the web content into build/web. The add-on archive must have the
+      layout expected by WebCTRL: info.xml + META-INF/ + webapp/ (the web module).
+    -->
+    <target name="-pre-dist">
+        <mkdir dir="${build.web.dir}/webapp"/>
+        <move todir="${build.web.dir}/webapp">
+            <fileset dir="${build.web.dir}">
+                <include name="WEB-INF/**"/>
+                <include name="**/*.jsp"/>
+                <include name="**/*.html"/>
+                <include name="**/js/**"/>
+            </fileset>
+        </move>
+    </target>
+
+    <!-- The installed add-on file is always called weather.addon -->
+    <target name="-post-dist">
+        <copy file="${dist.dir}/${war.name}" tofile="${dist.dir}/weather.addon"/>
+    </target>
+</project>

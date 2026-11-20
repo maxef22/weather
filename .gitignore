@@ -1,0 +1,31 @@
+# ---- build output ----
+build/
+dist/
+*.class
+*.war
+*.addon
+
+# ---- NetBeans / IDE local settings (absolute paths, machine specific) ----
+nbproject/private/
+.vscode/
+.idea/
+
+# ---- add-on runtime data: NEVER commit ----
+# SettingsManager keeps the weather API key here, LocationStore keeps the location list.
+weather-settings.properties
+weather-locations.json
+
+# ---- secrets and signing material ----
+*.keystore
+*.jks
+*.pfx
+*.p12
+*.cer
+*.pem
+*password*
+*Пароль*
+
+# ---- misc ----
+Thumbs.db
+desktop.ini
+.DS_Store
