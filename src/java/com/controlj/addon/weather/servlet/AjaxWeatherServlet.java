@@ -112,6 +112,10 @@ public class AjaxWeatherServlet extends HttpServlet {
                     hour.put("conditions", hf.getConditions());
                     hour.put("windSpeed", hf.getWindSpeed());
                     hour.put("windDir", hf.getWindDir());
+                    hour.put("pressureHpa", hf.getPressureHpa());
+                    hour.put("dewPoint", hf.getDewPoint());
+                    hour.put("humidityRatioGPerKg", hf.getHumidityRatioGPerKg());
+                    hour.put("enthalpy", hf.getEnthalpy());
                     hourlyArray.put(hour);
                 }
                 result.put("hourlyForecast", hourlyArray);

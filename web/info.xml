@@ -1,7 +1,7 @@
 <extension version='1'>
   <name>Weather</name>
   <description>Get weather info via API</description>
-  <version>1.1.6</version>
+  <version>1.2.0</version>
   <vendor>MAX</vendor>
   <eula use-system-addon-eula='true' />
   <license-requirements />

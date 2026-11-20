@@ -5,6 +5,7 @@ import com.controlj.addon.weather.data.DailyForecast;
 import com.controlj.addon.weather.data.LocationConfig;
 import com.controlj.addon.weather.data.WeatherCache.LocationWeatherData;
 import com.controlj.addon.weather.util.SettingsManager;
+import com.controlj.addon.weather.util.Psychrometrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -149,6 +150,24 @@ public class WeatherApiService {
                 hf.setWindSpeed(hour.optDouble("windspeed", 0));
                 hf.setWindDir(hour.optDouble("winddir", 0));
                 
+                // ===== ПСИХРОМЕТРИЯ (Visual Crossing) =====
+                // unitGroup=us returns °F; the formulas below work in °C.
+                boolean us = "us".equalsIgnoreCase(units);
+                double tempC = us ? (hour.getDouble("temp") - 32.0) * 5.0 / 9.0 : hour.getDouble("temp");
+                double dewRaw = hour.optDouble("dew", Double.NaN);
+                double dewC = Double.isNaN(dewRaw)
+                        ? Psychrometrics.dewPointC(tempC, hour.getInt("humidity"))
+                        : (us ? (dewRaw - 32.0) * 5.0 / 9.0 : dewRaw);
+                double pressure = hour.optDouble("pressure", currentPressure);
+                if (pressure > 0 && pressure < 100) {
+                    pressure = pressure * 33.8639; // inches of mercury -> hPa
+                }
+                double ratio = Psychrometrics.humidityRatio(dewC, pressure);
+                hf.setPressureHpa(Psychrometrics.round1(pressure));
+                hf.setDewPoint(Psychrometrics.round1(dewC));
+                hf.setHumidityRatio(ratio);
+                hf.setEnthalpy(Psychrometrics.round1(Psychrometrics.enthalpyKjPerKg(tempC, ratio)));
+                
                 hourlyList.add(hf);
                 hoursNeeded--;
             }
@@ -276,6 +295,17 @@ public class WeatherApiService {
             hf.setHumidity(hour.getInt("humidity"));
             hf.setConditions(hour.getJSONObject("condition").getString("text"));
             hf.setWindDir(hour.getInt("wind_degree"));
+            
+            // ===== ПСИХРОМЕТРИЯ: давление, точка росы, влагосодержание, энтальпия =====
+            double hourPressure = hour.optDouble("pressure_mb", currentPressure);
+            double hourDewPoint = hour.has("dewpoint_c")
+                    ? hour.getDouble("dewpoint_c")
+                    : Psychrometrics.dewPointC(hf.getTemp(), hf.getHumidity());
+            double humidityRatio = Psychrometrics.humidityRatio(hourDewPoint, hourPressure);
+            hf.setPressureHpa(Psychrometrics.round1(hourPressure));
+            hf.setDewPoint(Psychrometrics.round1(hourDewPoint));
+            hf.setHumidityRatio(humidityRatio);
+            hf.setEnthalpy(Psychrometrics.round1(Psychrometrics.enthalpyKjPerKg(hf.getTemp(), humidityRatio)));
             
             hourlyList.add(hf);
             hoursNeeded--;

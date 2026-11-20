@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| Версия | 1.1.6 |
+| Версия | 1.2.0 |
 | Java | 11 (major 55) |
 | Контейнер | Tomcat 9, Servlet 2.5 (`metadata-complete="true"`) |
 | API WebCTRL | `directaccess-api-addon-1.7.0.jar` |
@@ -15,6 +15,7 @@
 
 - несколько локаций (по умолчанию 21), список сохраняется в `conf/weather-locations.json` и переживает рестарт;
 - прогноз на 12 часов и на 3 дня (столько отдаёт бесплатный тариф WeatherAPI);
+- психрометрия по каждому часу: энтальпия, точка росы, влагосодержание (по прогнозным T, RH и давлению);
 - запись всех локаций **одной** транзакцией `runWriteAction`, с проверкой `isWritable()`;
 - ретраи при сетевых ошибках (3 попытки), ошибка по каждой локации видна в интерфейсе;
 - страницы: `/weather` (карточка + графики), `/view` (компактная), `/config` (настройки), `/writeweather` (статус записи).
@@ -65,6 +66,9 @@ javac --release 11 -encoding UTF-8 \
 | `wfN_avghumidity` | относительная влажность, % |
 | `wfN_windspeed` | скорость ветра, м/с |
 | `wfN_winddirection` | направление ветра, ° |
+| `wfN_enthalpy` | энтальпия влажного воздуха, кДж/кг сух. возд. |
+| `wfN_dewpoint` | точка росы, °C |
+| `wfN_humidityratio` | влагосодержание, г/кг сух. возд. |
 
 **Прогноз по дням — 3 дня (`wd0` … `wd2`, номер = смещение в днях):**
 
@@ -76,19 +80,39 @@ javac --release 11 -encoding UTF-8 \
 На одну локацию (одну программу) создаются, например, такие точки:
 
 ```
-#weather_prog_1/wf0_highesttemperature    #weather_prog_1/wd0_highesttemperature
-#weather_prog_1/wf0_avghumidity           #weather_prog_1/wd0_mintemperature
-#weather_prog_1/wf0_windspeed             #weather_prog_1/wd1_highesttemperature
-#weather_prog_1/wf0_winddirection         #weather_prog_1/wd1_mintemperature
-...                                       #weather_prog_1/wd2_highesttemperature
-#weather_prog_1/wf11_highesttemperature   #weather_prog_1/wd2_mintemperature
-#weather_prog_1/wf11_avghumidity
+#weather_prog_1/wf0_highesttemperature    #weather_prog_1/wf0_enthalpy
+#weather_prog_1/wf0_avghumidity           #weather_prog_1/wf0_dewpoint
+#weather_prog_1/wf0_windspeed             #weather_prog_1/wf0_humidityratio
+#weather_prog_1/wf0_winddirection         ...
+...                                       #weather_prog_1/wf11_enthalpy
+#weather_prog_1/wf11_highesttemperature   #weather_prog_1/wf11_dewpoint
+#weather_prog_1/wf11_avghumidity          #weather_prog_1/wf11_humidityratio
 #weather_prog_1/wf11_windspeed
-#weather_prog_1/wf11_winddirection
+#weather_prog_1/wf11_winddirection        #weather_prog_1/wd0_highesttemperature
+                                          #weather_prog_1/wd0_mintemperature
+                                          ... #weather_prog_1/wd2_mintemperature
 ```
 
-Итого за цикл на одну программу: 12 часов × 4 поля = 48 значений и 3 дня × 2 поля = 6 значений, **54 значения**.
+Итого за цикл на одну программу: 12 часов × 7 полей = 84 значения и 3 дня × 2 поля = 6 значений, **90 значений**
+(без психрометрии было 54 — добавились `enthalpy`, `dewpoint`, `humidityratio`).
 Отсутствующие точки не считаются ошибкой — они пропускаются и попадают в список «Не записаны» на странице `/writeweather`.
+
+### Психрометрия
+
+Энтальпия считается по точке росы и абсолютному давлению часа:
+
+```
+Pw = Psat(Td)                          Psat — давление насыщения (Магнус), гПа
+W  = 0.621945 · Pw / (P − Pw)          влагосодержание, кг/кг сух. возд.
+h  = 1.006·T + W·(2501 + 1.86·T)       энтальпия, кДж/кг сух. возд.
+```
+
+- давление `P` берётся из почасового прогноза (`pressure_mb`), при отсутствии — текущее давление локации, затем 1013.25 гПа;
+- точка росы берётся из прогноза (`dewpoint_c`), при отсутствии рассчитывается из T и RH;
+- в WebCTRL `wfN_humidityratio` пишется в **г/кг**, `wfN_enthalpy` — в **кДж/кг**, `wfN_dewpoint` — в **°C**, все с одним знаком после запятой;
+- точность ограничена прогнозом (в основном влажностью: ±5 % RH ≈ ±1 кДж/кг), давление влияет слабо (990 вместо 1013 гПа ≈ +0.4 кДж/кг).
+
+Проверочные значения (P = 1013.25 гПа): 0 °C / 80 % → 7.5 кДж/кг; 20 °C / 50 % → 38.5; 25 °C / 60 % → 55.4; 30 °C / 70 % → 78.1.
 
 ## Ограничения
 

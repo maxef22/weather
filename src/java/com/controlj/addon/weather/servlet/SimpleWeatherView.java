@@ -207,12 +207,15 @@ public class SimpleWeatherView extends HttpServlet {
             out.println("<div class='hourly-title'>📅 12-Hour Forecast</div>");
             out.println("<div class='hourly-scroll'>");
             for (HourlyForecast hf : data.getHourlyForecast()) {
-                out.println("<div class='hour-card'>");
+                out.println("<div class='hour-card' title='h=" + hf.getEnthalpy() + " кДж/кг, td="
+                        + hf.getDewPoint() + " °C, W=" + hf.getHumidityRatioGPerKg() + " г/кг, P="
+                        + hf.getPressureHpa() + " гПа'>");
                 out.println("<div class='hour-time'>" + hf.getTime() + "</div>");
                 out.println("<div class='hour-temp'>" + Math.round(hf.getTemp()) + "°</div>");
                 out.println("<div>" + (hf.getConditions().length() > 8 ? hf.getConditions().substring(0, 8) : hf.getConditions()) + "</div>");
                 out.println("<div>💧 " + hf.getHumidity() + "%</div>");
                 out.println("<div>💨 " + Math.round(hf.getWindSpeed()) + "</div>");
+                out.println("<div style='color:#ffd700'>h " + Math.round(hf.getEnthalpy()) + "</div>");
                 out.println("</div>");
             }
             out.println("</div>");

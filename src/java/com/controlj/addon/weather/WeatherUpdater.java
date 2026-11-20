@@ -307,8 +307,8 @@ public class WeatherUpdater {
     }
     
     /**
-     * Writes one location: 12 hourly values (temperature, humidity, wind speed, wind direction)
-     * and up to 7 daily values (max / min temperature).
+     * Writes one location: 12 hourly values (temperature, humidity, wind speed, wind direction,
+     * enthalpy, dew point, humidity ratio) and up to 7 daily values (max / min temperature).
      */
     private static void writeLocation(Location root, String programPath,
                                       LocationWeatherData data, WriteResult result) {
@@ -322,6 +322,9 @@ public class WeatherUpdater {
                 count += writePoint(root, programPath + "/wf" + hour + "_avghumidity", hf.getHumidity(), result);
                 count += writePoint(root, programPath + "/wf" + hour + "_windspeed", hf.getWindSpeed(), result);
                 count += writePoint(root, programPath + "/wf" + hour + "_winddirection", hf.getWindDir(), result);
+                count += writePoint(root, programPath + "/wf" + hour + "_enthalpy", hf.getEnthalpy(), result);
+                count += writePoint(root, programPath + "/wf" + hour + "_dewpoint", hf.getDewPoint(), result);
+                count += writePoint(root, programPath + "/wf" + hour + "_humidityratio", hf.getHumidityRatioGPerKg(), result);
             }
         }
         

@@ -33,22 +33,33 @@ public class PrimitiveDeclarationServlet extends HttpServlet {
         JSONObject root = new JSONObject();
         JSONArray declarations = new JSONArray();
         
-        // Declare variables for 12 hours (temperature + humidity)
-        // Variable names must be in LOWERCASE only!
+        // Same field set as WeatherUpdater writes (names must be LOWERCASE only).
+        String[] hourlyFields = {
+            "highesttemperature", "avghumidity", "windspeed", "winddirection",
+            "enthalpy", "dewpoint", "humidityratio"
+        };
+        String[] dailyFields = {"highesttemperature", "mintemperature"};
+        
+        // 12 hours x 7 values
         for (int hour = 0; hour < 12; hour++) {
-            // Temperature field
-            JSONObject tempField = new JSONObject();
-            tempField.put("fieldName", "wf" + hour + "_highesttemperature");
-            tempField.put("value", "0");
-            tempField.put("type", "PrimitiveNumber");
-            declarations.put(tempField);
-            
-            // Humidity field
-            JSONObject humidityField = new JSONObject();
-            humidityField.put("fieldName", "wf" + hour + "_avghumidity");
-            humidityField.put("value", "0");
-            humidityField.put("type", "PrimitiveNumber");
-            declarations.put(humidityField);
+            for (String field : hourlyFields) {
+                JSONObject item = new JSONObject();
+                item.put("fieldName", "wf" + hour + "_" + field);
+                item.put("value", "0");
+                item.put("type", "PrimitiveNumber");
+                declarations.put(item);
+            }
+        }
+        
+        // 3 days x 2 values
+        for (int day = 0; day < 3; day++) {
+            for (String field : dailyFields) {
+                JSONObject item = new JSONObject();
+                item.put("fieldName", "wd" + day + "_" + field);
+                item.put("value", "0");
+                item.put("type", "PrimitiveNumber");
+                declarations.put(item);
+            }
         }
         
         root.put("declarations", declarations);

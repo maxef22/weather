@@ -84,6 +84,27 @@ public class PrimitiveUpdateServlet extends HttpServlet {
                     windDirValue.put("value", String.valueOf(hf.getWindDir()));
                     windDirValue.put("type", "PrimitiveNumber");
                     values.put(windDirValue);
+                    
+                    // Enthalpy
+                    JSONObject enthalpyValue = new JSONObject();
+                    enthalpyValue.put("fieldName", "wf" + hour + "_enthalpy");
+                    enthalpyValue.put("value", String.valueOf(hf.getEnthalpy()));
+                    enthalpyValue.put("type", "PrimitiveNumber");
+                    values.put(enthalpyValue);
+                    
+                    // Dew point
+                    JSONObject dewPointValue = new JSONObject();
+                    dewPointValue.put("fieldName", "wf" + hour + "_dewpoint");
+                    dewPointValue.put("value", String.valueOf(hf.getDewPoint()));
+                    dewPointValue.put("type", "PrimitiveNumber");
+                    values.put(dewPointValue);
+                    
+                    // Humidity ratio, g/kg
+                    JSONObject humidityRatioValue = new JSONObject();
+                    humidityRatioValue.put("fieldName", "wf" + hour + "_humidityratio");
+                    humidityRatioValue.put("value", String.valueOf(hf.getHumidityRatioGPerKg()));
+                    humidityRatioValue.put("type", "PrimitiveNumber");
+                    values.put(humidityRatioValue);
                 }
             }
         }
