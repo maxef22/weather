@@ -53,15 +53,42 @@ javac --release 11 -encoding UTF-8 \
 
 ## Точки WebCTRL
 
+Под **каждую локацию** в GEO-дереве создаётся отдельная программа: `#weather_prog_1`, `#weather_prog_2`, …
+(`N` — номер локации; путь программы задаётся при добавлении локации в настройках, по умолчанию `#weather_prog_N`).
+Аддон не создаёт точки сам — он пишет значения в уже существующие точки программы.
+
+**Почасовой прогноз — 12 часов вперёд (`wf0` … `wf11`, номер = смещение в часах):**
+
 | Точка | Значение |
 |---|---|
-| `wf0..wf11_highesttemperature` | температура, °C |
-| `wf0..wf11_avghumidity` | влажность, % |
-| `wf0..wf11_windspeed` | скорость ветра, м/с |
-| `wf0..wf11_winddirection` | направление, ° |
-| `wd0..wd2_highesttemperature` / `wd0..wd2_mintemperature` | max / min на день, °C |
+| `wfN_highesttemperature` | температура, °C |
+| `wfN_avghumidity` | относительная влажность, % |
+| `wfN_windspeed` | скорость ветра, м/с |
+| `wfN_winddirection` | направление ветра, ° |
 
-`N` в `wfN`/`wdN` — смещение часов/дней от текущего момента.
+**Прогноз по дням — 3 дня (`wd0` … `wd2`, номер = смещение в днях):**
+
+| Точка | Значение |
+|---|---|
+| `wdN_highesttemperature` | максимальная температура дня, °C |
+| `wdN_mintemperature` | минимальная температура дня, °C |
+
+На одну локацию (одну программу) создаются, например, такие точки:
+
+```
+#weather_prog_1/wf0_highesttemperature    #weather_prog_1/wd0_highesttemperature
+#weather_prog_1/wf0_avghumidity           #weather_prog_1/wd0_mintemperature
+#weather_prog_1/wf0_windspeed             #weather_prog_1/wd1_highesttemperature
+#weather_prog_1/wf0_winddirection         #weather_prog_1/wd1_mintemperature
+...                                       #weather_prog_1/wd2_highesttemperature
+#weather_prog_1/wf11_highesttemperature   #weather_prog_1/wd2_mintemperature
+#weather_prog_1/wf11_avghumidity
+#weather_prog_1/wf11_windspeed
+#weather_prog_1/wf11_winddirection
+```
+
+Итого за цикл на одну программу: 12 часов × 4 поля = 48 значений и 3 дня × 2 поля = 6 значений, **54 значения**.
+Отсутствующие точки не считаются ошибкой — они пропускаются и попадают в список «Не записаны» на странице `/writeweather`.
 
 ## Ограничения
 
